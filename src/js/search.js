@@ -365,7 +365,7 @@ function downloadAIJSON() {
   btn.textContent = "💾 " + (currentLang === 'ja' ? '生成中...' : 'Generating...');
 
   // 1. Workerを生成
-  const worker = new Worker('ai-export-worker.js');
+  const worker = new Worker('src/js/ai-export-worker.js');
 
   // 2. Workerからのメッセージ（Blob）を待機
   worker.onmessage = function(event) {
