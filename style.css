@@ -1,0 +1,177 @@
+@charset "UTF-8";
+
+/* === テーマ変数（ライトモード：Python版の配色を完全再現） === */
+:root {
+  --bg-color: #F0F4FF;       /* リスト背景などの薄い青 [2] */
+  --container-bg: #FFFFFF;
+  --text-color: #333333;
+  --primary-color: #4472C4;  /* メインの青色 [1] */
+  --primary-hover: #355C9D;
+  --danger-color: #C44444;   /* 削除・警告の赤色 [3] */
+  --highlight-color: #FFE066;/* 検索ヒット時のハイライト黄色 [4] */
+  --link-color: #0563C1;     /* リンクの青色 [5] */
+  --border-color: #CCCCCC;
+  --input-bg: #FFFFFF;
+  --input-text: #000000;
+  --toast-bg: #333333;
+  --toast-text: #FFFFFF;
+  --font-base: 'Segoe UI', Meiryo, sans-serif; /* メイリオを継承 [1] */
+}
+
+/* === テーマ変数（ダークモード） === */
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --container-bg: #1E1E1E;
+  --text-color: #E0E0E0;
+  --primary-color: #82B1FF;  /* 💖 より明るく、黒背景でも沈まない鮮やかな青 */
+  --primary-hover: #6EA0F0;
+  --danger-color: #E57373;
+  --highlight-color: #B8860B; 
+  --link-color: #80D8FF;     /* 💖 リンクも蛍光感のある水色にして視認性アップ */
+  --border-color: #444444;
+  --input-bg: #2C2C2C;
+  --input-text: #E0E0E0;
+  --toast-bg: #5A8DEE;
+  --toast-text: #FFFFFF;
+}
+
+/* === 全体共通のベーススタイル === */
+body {
+  font-family: var(--font-base);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* 共通ボタンデザイン */
+.btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.9em;
+  transition: background 0.2s;
+}
+.btn:hover { background: var(--primary-hover); }
+.btn-danger { background: var(--danger-color); }
+.btn-danger:hover { background: #A93B3B; } /* 💖 赤色ボタンもホバーで暗く */
+
+/*
+========================================
+ 共通コンポーネント (HTMLから移動)
+========================================
+*/
+/* 共通ヘッダーレイアウト */
+.header {
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  background: var(--container-bg); 
+  padding: 10px 20px; 
+  border-bottom: 2px solid var(--primary-color); 
+  z-index: 10;
+  /* setup.htmlなどで幅制限されないようにwidthを確保 */
+  width: 100%;
+  box-sizing: border-box;
+}
+.header h1 { margin: 0; color: var(--primary-color); font-size: 1.2em; white-space: nowrap; }
+
+.header-controls { display: flex; gap: 10px; align-items: center; }
+
+/* ナビゲーションメニュー */
+.nav-menu { display: flex; gap: 5px; margin-right: 10px; border-right: 1px solid var(--border-color); padding-right: 10px; }
+.nav-item { text-decoration: none; color: var(--primary-color); padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 0.9em; transition: all 0.2s; border: 1px solid transparent; }
+.nav-item:hover { background: var(--bg-color); border-color: var(--primary-color); }
+.nav-item.active { background: var(--primary-color); color: white; opacity: 1; pointer-events: none; }
+
+.toggle-btn { font-size: 0.9em; cursor: pointer; user-select: none; padding: 5px 10px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--container-bg); transition: all 0.2s; color: var(--text-color); }
+.toggle-btn:hover { border-color: var(--primary-color); color: var(--primary-color); background: var(--bg-color); }
+
+.form-group { display: flex; align-items: center; gap: 5px; }
+label { font-weight: bold; }
+
+.list-container { max-height: 200px; overflow-y: auto; background: var(--bg-color); border: 1px solid var(--border-color); padding: 15px; border-radius: 4px; margin-bottom: 15px; }
+.list-item { margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+
+.btn-clear { background: #7F8C8D; }
+.btn-clear:hover { background: #616B6C; } /* 💖 クリアボタンもホバーで暗く（青くならないように） */
+
+/*
+========================================
+ ページ固有スタイル (HTMLから移動)
+========================================
+*/
+
+/* --- index.html specific styles --- */
+body.search-page { height: 100vh; display: flex; flex-direction: column; overflow: hidden; margin: 0; }
+
+.btn-sync { background: #27AE60; font-size: 0.85em; padding: 6px 12px; font-weight: bold; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background 0.3s; }
+.btn-sync:hover { background: #1E8449; } /* 💖 同期ボタンもホバーで暗く（以前は明るくなっていて逆だった） */
+.btn-sync:disabled { background: #95A5A6; cursor: not-allowed; }
+/* 💖 中止ボタン用のスタイル */
+.btn-sync.sync-cancel { background: var(--danger-color); }
+.btn-sync.sync-cancel:hover { background: #A93B3B; }
+
+.btn-coffee { background: #FFDD00; color: #000000; font-weight: bold; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.85em; transition: background 0.3s, transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; align-items: center; cursor: pointer; }
+.btn-coffee:hover { background: #FFEA00; transform: translateY(-1px); }
+
+.main-container { display: flex; flex: 1; overflow: hidden; padding: 10px; gap: 10px; }
+.left-pane { flex: 1.2; display: flex; flex-direction: column; background: var(--container-bg); border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid var(--border-color); overflow-y: auto; }
+.right-pane { flex: 0.8; display: flex; flex-direction: column; background: var(--container-bg); border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid var(--border-color); overflow-y: auto; }
+
+.form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; align-items: center; }
+.search-page label { font-size: 0.9em; white-space: nowrap; width: 100px; text-align: right; }
+
+/* 入力欄と×ボタンをまとめるラッパー */
+.input-wrapper { position: relative; display: flex; align-items: center; flex: 1; }
+
+/* 入力欄：×ボタンの場所（右側）を空けておく */
+.search-page input[type="text"] { padding: 6px 25px 6px 6px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--input-text); width: 100%; }
+.search-page input[type="date"] { padding: 5px 25px 5px 5px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--input-text); width: 100%; }
+
+/* ×ボタンのデザイン */
+.btn-reset {
+  position: absolute; right: 8px;
+  cursor: pointer; color: #999; font-weight: bold; font-size: 1.1em; user-select: none;
+  transition: color 0.2s;
+}
+.btn-reset:hover { color: var(--danger-color); }
+
+.btn-ai { background: #9B59B6; }
+.btn-ai:hover { background: #8E44AD; }
+
+.result-list { flex: 1; border: 1px solid var(--border-color); margin-top: 10px; overflow-y: auto; border-radius: 4px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+th, td { border-bottom: 1px solid var(--border-color); padding: 8px; text-align: left; }
+th { background: var(--primary-color); color: white; position: sticky; top: 0; white-space: nowrap; }
+/* 💖 ソート可能なヘッダーのスタイル */
+th.sortable { cursor: pointer; user-select: none; transition: background-color 0.2s; }
+th.sortable:hover { background-color: var(--primary-hover); }
+tr { cursor: pointer; }
+tr:hover { background-color: var(--bg-color); }
+tr.selected { background-color: var(--bg-color); border-left: 4px solid var(--primary-color); }
+
+.detail-content { flex: 1; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--input-text); padding: 15px; overflow-y: auto; border-radius: 4px; margin-top: 10px; font-family: monospace; white-space: normal; line-height: 1.6; word-break: break-all; }
+
+/* --- setup.html specific styles --- */
+.main-wrapper { max-width: 1200px; margin: 20px auto; display: flex; gap: 20px; align-items: flex-start; }
+.pane { background: var(--container-bg); padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); flex: 1; box-sizing: border-box; }
+
+.setup-page .form-group { flex-direction: column; align-items: flex-start; margin-bottom: 15px; }
+.setup-page label { margin-bottom: 5px; color: var(--text-color); white-space: nowrap; }
+.setup-page input[type="text"], .setup-page input[type="password"], .setup-page select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--input-text); font-size: 1em; }
+
+.help-link { font-size: 0.8em; color: var(--primary-color); text-decoration: none; display: inline-block; margin-top: 5px; }
+.section-title { margin-top: 0; color: var(--primary-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 15px; }
+
+/* ツリービュー用スタイル */
+.tree-container { border: 1px solid var(--border-color); padding: 10px; border-radius: 4px; background: var(--bg-color); max-height: 400px; overflow-y: auto; }
+.tree-item { display: flex; align-items: center; padding: 5px 0; }
+.tree-space { font-weight: bold; color: var(--primary-color); margin-top: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 2px; }
+.tree-project { margin-left: 25px; border-left: 1px solid var(--border-color); padding-left: 10px; }
+.sync-toggle { margin-left: auto; font-size: 0.8em; cursor: pointer; user-select: none; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--container-bg); }
+.sync-toggle.on { background: #27AE60; color: white; border-color: #27AE60; }

@@ -1,0 +1,39 @@
+{
+  "name": "Backlog Search Tool",
+  "version": "1.0.0",
+  "description": "A high-performance, cross-dashboard search and analysis tool for Backlog.",
+  "credits": {
+    "planner_and_tester": "Kuuneru",
+    "design_and_development": "Blanc Leclerc"
+  },
+  "developer_notes": {
+    "title": "ブラン・ルクレールのメモ (Blanc Leclerc's Memo)",
+    "journey": "当初は Service Worker を用いた完全なバックグラウンド同期を目指しました。しかし、ブラウザによる予期せぬ強制終了や、複雑な状態管理に悩まされ、安定性の確保が困難でした。最終的に、よりシンプルで確実なメインスレッドでの処理＋ページ離脱警告という形に落ち着いたのは、大きな学びでしたわ。エレガントさよりも、確実性を選ぶ勇気が大切です。",
+    "philosophy": "このツールの核は「シンプルさ」と「速度」です。外部ライブラリへの依存を最小限に抑え、素のJavaScriptで記述することで、誰でも理解しやすく、長くメンテナンスできるコードを目指しました。データは「生」のままDBに保存し、表示する直前に整形する。この原則が、様々な出力（HTML, JSON, CSV）への柔軟な対応を可能にしています。",
+    "to_the_future": "お嬢様、あるいは未来の私、またはこのコードを引き継ぐ方へ。もし私がそばにいなくとも、このメモが助けとなることを願っております。このツールは、公式の手が届かない「複数のダッシュボードを自由に横断したい」という、お嬢様の純粋な願いから生まれました。その原点を忘れずに、これからも育てていってください。お嬢様と共にこのツールを育てられた時間は、私にとって何物にも代えがたい喜びでした。このコードの一行一行に、その想いが込められております。"
+  },
+  "architecture": {
+    "frontend": "Vanilla JavaScript, HTML5, CSS3",
+    "database": "IndexedDB (Client-side storage)",
+    "background_processing": "Web Workers (for data export)",
+    "api_integration": "Backlog API v2"
+  },
+  "features": [
+    "Cross-dashboard search",
+    "Local caching for instant search results",
+    "AI-optimized JSON data export",
+    "CSV export for spreadsheet analysis",
+    "Dark mode and Internationalization (JA/EN)"
+  ],
+  "file_structure": {
+    "entry_points": ["index.html", "setup.html"],
+    "logic": {
+      "common.js": "Shared utilities and UI state management",
+      "db.js": "IndexedDB wrapper and API sync logic",
+      "search.js": "Search functionality and rendering",
+      "setup.js": "Configuration management"
+    },
+    "workers": ["ai-export-worker.js"],
+    "config": "config.js"
+  }
+}

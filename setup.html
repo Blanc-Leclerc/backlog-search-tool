@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <title>Backlog 検索ツール - Setup</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
+  <script src="common.js"></script>
+  <script src="db.js"></script>
+</head>
+<body class="setup-page">
+
+<!-- 💖 ヘッダーをラッパーの外に出して、全幅表示にします -->
+<div class="header">
+  <h1 id="title">初期設定 (Setup)</h1>
+  <div class="header-controls">
+    <!-- 💖 グローバル同期UI -->
+    <span id="global-sync-status" style="color: #E67E22; font-weight: bold; font-size: 0.9em; margin-right: 10px;"></span>
+    <button class="btn-sync" id="btn-global-sync" onclick="startGlobalSync()">🔄 データの最新化</button>
+
+    <div class="nav-menu">
+      <a href="index.html" class="nav-item" id="nav-link-search">🔍 検索</a>
+      <a href="setup.html" class="nav-item active" id="nav-link-settings">⚙️ 設定</a>
+    </div>
+    <div class="toggle-btn" onclick="toggleThemeGlobal()" id="theme-toggle">🌙 Dark</div>
+    <div class="toggle-btn" onclick="toggleLanguage()">🌐 <span>EN / JP ▼</span></div>
+    <!-- 💖 投げ銭ボタンを一番右端に配置！ -->
+    <a href="https://buymeacoffee.com/blancleclerc" class="btn-coffee" target="_blank" rel="noopener noreferrer" style="margin-left: 10px;">☕ Buy me a coffee</a>
+  </div>
+</div>
+
+<div class="main-wrapper">
+  <!-- 左ペイン：管理エリア（ツリービュー） -->
+  <div class="pane">
+    <h3 class="section-title" id="lbl-tree-title">📂 登録済み構成（ツリービュー）</h3>
+    
+    <div class="tree-container" id="config-tree-ui"></div>
+    
+    <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <button class="btn btn-sel-all" style="padding: 4px 10px; font-size: 0.85em;" onclick="toggleAll('config-tree-ui', true)">☑ 全選択</button>
+        <button class="btn btn-clear btn-desel-all" style="padding: 4px 10px; font-size: 0.85em;" onclick="toggleAll('config-tree-ui', false)">☐ 全解除</button>
+      </div>
+      <button class="btn btn-clear" id="btn-del-selected" onclick="deleteSelectedItems()" style="border: 1px solid var(--danger-color); color: var(--danger-color);">🗑️ 選択した項目を削除</button>
+    </div>
+
+    <div style="border-top: 2px dashed var(--danger-color); padding-top: 15px; margin-top: 20px;">
+      <button class="btn btn-danger" id="btn-clear-db" style="width: 100%;" onclick="clearLocalCache()">🔥 ローカルDB(キャッシュ)を全削除</button>
+    </div>
+  </div>
+
+  <!-- 右ペイン：登録エリア -->
+  <div class="pane">
+    <h3 class="section-title" id="lbl-pane1">🏢 ダッシュボードとプロジェクトの登録</h3>
+    
+    <!-- ダッシュボード登録 -->
+    <div class="form-group">
+      <label id="lbl-host">ダッシュボードURL (Host)</label>
+      <input type="text" id="new-host" placeholder="例: xxx.backlog.com">
+    </div>
+    <div class="form-group">
+      <label>
+        <span id="lbl-api">APIキー</span>
+        <a href="https://support-ja.backlog.com/hc/ja/articles/360035641754-API%E3%81%AE%E8%A8%AD%E5%AE%9A" target="_blank" class="help-link" id="link-help" style="margin-left: 10px;">💡 APIキーの発行手順はこちら</a>
+      </label>
+      <input type="password" id="new-apikey" placeholder="API Key">
+    </div>
+    <button class="btn" id="btn-add-space" onclick="addSpace()" style="width: 100%; margin-bottom: 25px;">➕ ダッシュボードを登録</button>
+    
+    <!-- プロジェクト取得 -->
+    <div style="border-top: 1px dashed var(--border-color); padding-top: 15px;">
+      <div class="form-group">
+        <label id="lbl-select-space">対象のダッシュボードを選択</label>
+        <select id="select-space"></select>
+      </div>
+      <button class="btn" id="btn-fetch" onclick="fetchProjects()" style="width: 100%; margin-bottom: 15px;">📥 プロジェクトを取得</button>
+    </div>
+
+    <!-- 取得結果（一時表示） -->
+    <div id="fetch-result-area" style="display: none; margin-top: 15px; background: var(--bg-color); padding: 10px; border-radius: 4px;">
+      <label id="lbl-add-proj">追加するプロジェクトを選択：</label>
+      <div style="margin-bottom: 5px;">
+        <button class="btn btn-sel-all" style="padding: 2px 8px; font-size: 0.8em;" onclick="toggleAll('fetched-projects-ui', true)">☑ 全選択</button>
+        <button class="btn btn-clear btn-desel-all" style="padding: 2px 8px; font-size: 0.8em;" onclick="toggleAll('fetched-projects-ui', false)">☐ 全解除</button>
+      </div>
+      <div class="list-container" id="fetched-projects-ui" style="max-height: 150px;"></div>
+      <button class="btn" id="btn-save-proj" onclick="saveSelectedProjects()" style="width: 100%; margin-top: 10px;">💾 選択したプロジェクトを登録</button>
+    </div>
+  </div>
+</div>
+
+<script src="setup.js"></script>
+</body>
+</html>

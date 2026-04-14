@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <!-- 💖 SEO対策: タイトルと説明文 (画面には表示されませんが検索結果に出ます) -->
+  <title>Backlog検索ツール | 高速・キャッシュ型で「重い・遅い」を解決</title>
+  <meta name="description" content="Backlogの課題検索が遅い・重いと感じる方向けの高速化ツール。APIキーを使用し、ブラウザ内にデータをキャッシュすることで爆速検索を実現します。">
+  
+  <!-- OGP (SNSでシェアされた時の見栄え) -->
+  <meta property="og:title" content="Backlog検索ツール | 高速・キャッシュ型">
+  <meta property="og:description" content="Backlogの標準検索が重い・遅いと感じるエンジニア向けの高速検索ツール。ブラウザ内キャッシュで爆速検索。">
+  <meta property="og:type" content="website">
+
+  <!-- 💖 構造化データ (JSON-LD): 画面には出さずにGoogleにツール情報を伝える正当な方法 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Backlog Search Tool",
+    "url": "backlogsearchtool.pages.dev",
+    "description": "Backlogの複数ダッシュボード（スペース）を跨いだ爆速な横断検索と、AI分析向けのJSONデータ出力を可能にする、環境構築不要のクライアントサイド・ユーティリティです。",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "All (Web Browser)",
+    "browserRequirements": "Requires a modern web browser with IndexedDB and Web Workers support.",
+    "softwareVersion": "1.0.0",
+    "isAccessibleForFree": true,
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "JPY",
+      "description": "基本機能は無料でご利用いただけます"
+    },
+    "featureList": [
+      "複数プロジェクト・ダッシュボードを跨いだCross-dashboard search（横断検索）",
+      "生成AI（LLM）に直接読み込ませるためのAI-optimized JSON data export",
+      "IndexedDBを利用したローカルキャッシュによる爆速検索",
+      "データ分析用のCSVエクスポート機能",
+      "Dark mode and Internationalization (JA/EN)"
+    ],
+    "creator": [
+      {
+        "@type": "Person",
+        "name": "Kuuneru",
+        "jobTitle": "Planner & Tester"
+      },
+      {
+        "@type": "Person",
+        "name": "Blanc Leclerc",
+        "jobTitle": "Design & Development"
+      }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
+  <script src="common.js"></script>
+  <script src="db.js"></script>
+  <style>
+    /* 💖 ヒント用モーダルのスタイル */
+    .modal {
+      display: none; 
+      position: fixed; 
+      z-index: 1000; 
+      left: 0;
+      top: 0;
+      width: 100%; 
+      height: 100%; 
+      overflow: auto; 
+      background-color: rgba(0,0,0,0.5); /* 半透明の黒背景 */
+      backdrop-filter: blur(2px); /* 背景を少しぼかす */
+    }
+    .modal-content {
+      background-color: var(--container-bg, #fff);
+      color: var(--text-color, #333);
+      margin: 10% auto; 
+      padding: 25px; 
+      border: 1px solid var(--border-color, #ccc);
+      width: 80%; 
+      max-width: 600px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .close-btn {
+      color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 0.8;
+    }
+    .close-btn:hover { color: var(--primary-color); }
+  </style>
+</head>
+<body class="search-page">
+
+<div class="header">
+  <h1 id="title">Backlog 検索ツール</h1>
+  <div class="header-controls">
+    <!-- 💖 グローバル同期UI -->
+    <span id="global-sync-status" style="color: #E67E22; font-weight: bold; font-size: 0.9em; margin-right: 10px;"></span>
+    <button class="btn-sync" id="btn-global-sync" onclick="startGlobalSync()">🔄 データの最新化</button>
+
+    <div class="nav-menu">
+      <a href="index.html" class="nav-item active" id="nav-link-search">🔍 検索</a>
+      <a href="setup.html" class="nav-item" id="nav-link-settings">⚙️ 設定</a>
+    </div>
+    <div class="toggle-btn" onclick="toggleThemeGlobal()" id="theme-toggle">🌙 Dark</div>
+    <div class="toggle-btn" onclick="toggleLanguage()">🌐 <span>EN / JP ▼</span></div>
+    <!-- 💖 投げ銭ボタンを一番右端に配置！ -->
+    <a href="https://buymeacoffee.com/blancleclerc" class="btn-coffee" target="_blank" rel="noopener noreferrer" style="margin-left: 10px;">☕ Buy me a coffee</a>
+  </div>
+</div>
+
+<div class="main-container">
+  <div class="left-pane">
+    <div class="form-row">
+      <div class="form-group">
+        <label id="lbl-space">ダッシュボード:</label>
+        <div class="input-wrapper">
+          <input type="text" id="space-input" list="space-list" placeholder="（すべて）">
+          <span class="btn-reset">×</span>
+        </div>
+        <datalist id="space-list"></datalist>
+      </div>
+      <div class="form-group">
+        <label id="lbl-proj">プロジェクト:</label>
+        <div class="input-wrapper">
+          <input type="text" id="proj-input" list="proj-list" placeholder="（すべて）">
+          <span class="btn-reset">×</span>
+        </div>
+        <datalist id="proj-list"></datalist>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label id="lbl-status">状態:</label>
+        <div class="input-wrapper">
+          <input type="text" id="status-input" list="status-list" placeholder="完了以外">
+          <span class="btn-reset">×</span>
+        </div>
+        <datalist id="status-list"></datalist>
+      </div>
+      <div class="form-group">
+        <label id="lbl-type">種別:</label>
+        <div class="input-wrapper">
+          <input type="text" id="type-input" list="type-list" placeholder="（すべて）">
+          <span class="btn-reset">×</span>
+        </div>
+        <datalist id="type-list"></datalist>
+      </div>
+      <div class="form-group">
+        <label id="lbl-assignee">担当者:</label>
+        <div class="input-wrapper" style="width: 120px;">
+          <input type="text" id="assignee-input" list="assignee-list" placeholder="Aさん">
+          <span class="btn-reset">×</span>
+        </div>
+        <datalist id="assignee-list"></datalist>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label id="lbl-due-date">期日:</label>
+        <div class="input-wrapper" style="width: 150px;">
+          <input type="date" id="due-input">
+          <span class="btn-reset">×</span>
+        </div>
+        <select id="due-mode" style="margin-left: 5px; padding: 6px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--input-text);">
+          <option value="since" id="opt-since">以降</option>
+          <option value="until" id="opt-until">以前</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label id="lbl-keyword">キーワード:</label>
+        <input type="text" id="keyword-input" placeholder="スペース区切りでAND検索" style="width:250px;">
+      </div>
+      <button class="btn" id="btn-search" onclick="performSearch()">🔍 検索</button>
+      <button class="btn btn-clear" id="btn-clear" onclick="clearSearch()">🗑️ クリア</button>
+      <button id="btn-hint" onclick="showSearchHints()" style="margin-left: 10px; background: transparent; border: none; cursor: pointer; font-size: 1.3em; padding: 0 5px;" title="ヒント (Hints)">💡</button>
+      <button class="btn btn-ai" id="btn-download" onclick="downloadAIJSON()" style="margin-left: auto;">💾 AI用データ保存</button>
+      <button class="btn" id="btn-csv" onclick="downloadCSV()" style="margin-left: 5px; background-color: #27AE60;">📊 CSV保存</button>
+    </div>
+    
+    <div style="font-size: 0.85em; font-weight: bold; color: var(--primary-color); margin-top: 5px;" id="count-label">検索結果：0件</div>
+
+    <div class="result-list">
+      <table>
+        <thead>
+          <tr>
+            <th id="th-key" class="sortable" onclick="sortResults('key')">キー</th><th id="th-sum" class="sortable" onclick="sortResults('summary')">件名</th><th id="th-status" class="sortable" onclick="sortResults('status')">状態</th>
+            <th id="th-assign" class="sortable" onclick="sortResults('assignee')">担当者</th><th id="th-due" class="sortable" onclick="sortResults('dueDate')">期日</th><th id="th-upd" class="sortable" onclick="sortResults('updated')">更新日</th>
+          </tr>
+        </thead>
+        <tbody id="result-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="right-pane">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h3 id="lbl-detail" style="margin: 0; font-size: 1.1em; color: var(--primary-color);">詳細・ヒット箇所</h3>
+      <button class="btn btn-ai" id="btn-copy-single" onclick="copySingleJSON()">🤖 この1件をAI用にコピー</button>
+    </div>
+    <div class="detail-content" id="detail-view">
+      
+      <!-- 💖 描画負荷軽減のため、詳細表示の構造を予め定義しておきます -->
+      <div id="detail-placeholder">
+        <!-- 初期メッセージは updateUI() で設定されます -->
+      </div>
+
+      <div id="detail-body" style="display: none;">
+        <div id="detail-title-bar" style="background: #4472C4; color: white; padding: 5px; font-weight: bold; margin-bottom: 10px;">
+          [<span id="detail-key"></span>] <span id="detail-summary"></span>
+        </div>
+
+        <div style="color: #4472C4; font-weight: bold; border-bottom: 1px solid #4472C4; margin-bottom: 5px;">─ 基本情報 ───────────────────────────</div>
+        <table style="border: none; margin-bottom: 15px; width: auto;">
+          <tbody>
+            <tr><td class="detail-label" style="border: none; padding: 2px 10px 2px 0; color: #666; width: 100px;">ダッシュボード</td><td id="detail-space" style="border: none; padding: 2px 0;"></td></tr>
+            <tr><td class="detail-label" style="border: none; padding: 2px 10px 2px 0; color: #666;">プロジェクト</td><td id="detail-project" style="border: none; padding: 2px 0;"></td></tr>
+            <tr><td class="detail-label" style="border: none; padding: 2px 10px 2px 0; color: #666;">状態</td><td id="detail-status" style="border: none; padding: 2px 0;"></td></tr>
+            <tr><td class="detail-label" style="border: none; padding: 2px 10px 2px 0; color: #666;">種別</td><td id="detail-type" style="border: none; padding: 2px 0;"></td></tr>
+            <tr><td class="detail-label" style="border: none; padding: 2px 10px 2px 0; color: #666;">担当者</td><td id="detail-assignee" style="border: none; padding: 2px 0;"></td></tr>
+            <tr><td class="detail-label" style="border: none; padding: 2px 10px 2px 0; color: #666;">登録日</td><td id="detail-created" style="border: none; padding: 2px 0;"></td></tr>
+            <tr><td class="detail-label" style="border: none; padding: 2px 10px 2px 0; color: #666;">更新日</td><td id="detail-updated" style="border: none; padding: 2px 0;"></td></tr>
+          </tbody>
+        </table>
+
+        <div style="color: #4472C4; font-weight: bold; border-bottom: 1px solid #4472C4; margin-bottom: 5px;">─ 説明文 ─────────────────────────────</div>
+        <div id="detail-description" style="margin-bottom: 15px;"></div>
+
+        <div style="color: #4472C4; font-weight: bold; border-bottom: 1px solid #4472C4; margin-bottom: 5px;">─ コメント ───────────────────────────</div>
+        <div id="detail-comments"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 💖 ヒント表示用のモーダルウィンドウ -->
+<div id="hint-modal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeSearchHints()">&times;</span>
+    <div id="hint-content"></div>
+  </div>
+</div>
+
+<script src="search.js"></script>
+</body>
+</html>
