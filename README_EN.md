@@ -29,6 +29,10 @@ I have carefully crafted this high-speed, comfortable, and AI-friendly search sp
     *   **📊 Save as CSV**: Downloads **all** search results in a flat CSV format, ready for beautiful integration with Excel or other spreadsheet tools for manual aggregation.
     *   **🤖 Copy this single ticket for AI**: Copies only the **single ticket** currently displayed on the right pane directly to your clipboard in JSON format. Ideal for pasting into a prompt to ask AI for specific advice, such as "How do I fix this bug?".
 
+## 🌐 Demo
+
+You can try it out right now: **https://backlog-search-tool.pages.dev**
+
 ## 📦 Installation
 
 No special installation is required. Simply open `index.html` in your favorite browser (Chrome or Edge recommended), and I will be ready to assist you anytime.
