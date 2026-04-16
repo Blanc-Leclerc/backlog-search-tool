@@ -96,6 +96,7 @@ const I18N = {
     // search.html のポップアップ
     msgSetupFirst: 'まずは初期設定をお願いいたしますわ。',
     msgSyncDone: '✨ データの更新が完了いたしましたわ！',
+    msgSyncPartialFail: '✨ データの更新が完了いたしましたが、一部のプロジェクトで取得に失敗いたしました。\n失敗: {0}\n次回の同期時に自動的に再試行いたします。',
     msgCopied: 'コピーいたしました！',
     msgNoData: 'データがございませんわ。検索してから押してくださいませ。',
     msgCommentPartFail: '⚠️ 一部のコメントが取得できませんでした。再同期をお試しくださいませ。',
@@ -180,6 +181,7 @@ const I18N = {
     // search.html のポップアップ
     msgSetupFirst: 'Please complete the initial setup first, My Lady.',
     msgSyncDone: '✨ Data synchronization is complete.',
+    msgSyncPartialFail: '✨ Sync complete, but some projects encountered errors.\nFailed: {0}\nThey will be retried automatically on the next sync.',
     msgCopied: 'It has been copied.',
     msgNoData: 'There is no data, My Lady.',
     msgCommentPartFail: '⚠️ Some comments could not be retrieved. Please try syncing again.',

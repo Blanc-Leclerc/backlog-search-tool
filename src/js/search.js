@@ -73,11 +73,15 @@ async function initApp() {
 }
 
 // 💖 同期完了時にService Workerから呼び出されるグローバルコールバック
-async function onSyncComplete() {
+async function onSyncComplete(result) {
   allDataCache = await getAllIssuesFromDB(); // キャッシュを更新
   SearchLogic.init(allDataCache); // UI更新
   performSearch(); // 検索を再実行
-  setTimeout(() => alert(getMsg('msgSyncDone')), 100);
+  if (result && result.failedProjects && result.failedProjects.length > 0) {
+    setTimeout(() => alert(getMsg('msgSyncPartialFail', result.failedProjects.join(', '))), 100);
+  } else {
+    setTimeout(() => alert(getMsg('msgSyncDone')), 100);
+  }
 }
 
 async function performSearch() {

@@ -40,7 +40,7 @@ async function startGlobalSync() {
     
     if (result && !result.cancelled) {
        if (typeof onSyncComplete === 'function') {
-         onSyncComplete();
+         onSyncComplete(result);
        }
     }
   } catch (e) {

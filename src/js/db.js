@@ -1,5 +1,25 @@
 // === db.js ===
 
+// 💖 429・ネットワークエラー時にリトライするfetchヘルパー
+async function fetchWithRetry(url, maxRetry = 5) {
+  let retry = 0;
+  while (retry < maxRetry) {
+    try {
+      const res = await fetch(url);
+      if (res.status === 429) {
+        await new Promise(r => setTimeout(r, 2000 * (retry + 1)));
+        retry++;
+        continue;
+      }
+      return res;
+    } catch (e) {
+      await new Promise(r => setTimeout(r, 2000 * (retry + 1)));
+      retry++;
+    }
+  }
+  throw new Error('fetch failed after max retries');
+}
+
 function initDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(CONFIG.DB_NAME, CONFIG.DB_VERSION);
@@ -97,25 +117,13 @@ async function fetchAndFormatIssue(host, apiKey, issue, forceProjKey) {
         commentsUrl += `&minId=${minId}`;
       }
 
-      // 💖 リトライロジックを追加：429エラー（レート制限）対策
+      // 💖 fetchWithRetryで429・ネットワークエラーに対応
       let commentsRes = null;
-      let retry = 0;
-      while(retry < 5) {
-        try {
-          commentsRes = await fetch(commentsUrl);
-          if (commentsRes.status === 429) {
-             // レート制限にかかったら少し待機してリトライ
-             await new Promise(r => setTimeout(r, 2000 * (retry + 1)));
-             retry++;
-             continue;
-          }
-          break; // 成功または429以外のエラーならループを抜ける
-        } catch(e) {
-          // ネットワークエラー時もリトライ
-          console.warn("Network error fetching comments, retrying...", e);
-          await new Promise(r => setTimeout(r, 2000 * (retry + 1)));
-          retry++;
-        }
+      try {
+        commentsRes = await fetchWithRetry(commentsUrl);
+      } catch (e) {
+        hasFetchError = true;
+        break;
       }
 
       if (!commentsRes || !commentsRes.ok) {
@@ -251,6 +259,7 @@ async function syncDataBackground(onProgress) {
   }
   const settings = JSON.parse(settingsStr);
   let totalFetchedCount = 0;
+  const failedProjects = []; // 💖 最終的に失敗したプロジェクトを記録
 
   for (const space of settings.spaces) {
     if (window.shouldCancelSync) break;
@@ -260,10 +269,16 @@ async function syncDataBackground(onProgress) {
 
     let allProjects = [];
     try {
-      const pRes = await fetch(`https://${host}/api/v2/projects?apiKey=${apiKey}`);
+      const pRes = await fetchWithRetry(`https://${host}/api/v2/projects?apiKey=${apiKey}`);
       if (pRes.ok) allProjects = await pRes.json();
-    } catch(e) { 
-      console.warn("Project fetch error", e); 
+      else {
+        // リトライ後もエラーなら、このスペースの全プロジェクトを失敗扱いにしてスキップ
+        space.projects.forEach(p => failedProjects.push(p.key));
+        continue;
+      }
+    } catch(e) {
+      space.projects.forEach(p => failedProjects.push(p.key));
+      continue;
     }
 
     for (const proj of space.projects) {
@@ -302,23 +317,31 @@ async function syncDataBackground(onProgress) {
         }
         if (window.shouldCancelSync) break;
 
+        let issuesFetchFailed = false;
         while (true) {
           if (window.shouldCancelSync) break;
           if (onProgress) onProgress(`[${projKey}] Fetching... (${totalFetchedCount})`);
-          
+
           let url = `https://${host}/api/v2/issues?apiKey=${apiKey}&projectId[]=${projId}&count=${CONFIG.FETCH_LIMIT}&offset=${offset}&order=updated`;
           if (lastFetch) url += `&updatedSince=${lastFetch.substring(0, 10)}`;
-          
-          const res = await fetch(url);
-          if (!res.ok) break;
+
+          let res;
+          try {
+            res = await fetchWithRetry(url);
+          } catch (e) {
+            issuesFetchFailed = true;
+            break;
+          }
+          if (!res.ok) { issuesFetchFailed = true; break; }
           const issues = await res.json();
           if (issues.length === 0) break;
-          
+
           issues.forEach(i => issuesMap.set(i.issueKey, i));
           offset += CONFIG.FETCH_LIMIT;
           totalFetchedCount += issues.length;
           if (issues.length < CONFIG.FETCH_LIMIT) break;
         }
+        if (issuesFetchFailed) failedProjects.push(projKey);
         if (window.shouldCancelSync) break;
 
         const allIssues = Array.from(issuesMap.values());
@@ -365,5 +388,5 @@ async function syncDataBackground(onProgress) {
   if (!window.shouldCancelSync) {
     localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(settings));
   }
-  return { cancelled: window.shouldCancelSync };
+  return { cancelled: window.shouldCancelSync, failedProjects };
 }
