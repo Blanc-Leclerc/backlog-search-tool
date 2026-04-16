@@ -31,7 +31,7 @@ I have carefully crafted this high-speed, comfortable, and AI-friendly search sp
 
 ## 🌐 Demo
 
-You can try it out right now: **https://backlog-search-tool.pages.dev**
+You can try it out right now: **https://backlogsearchtool.pages.dev**
 
 ## 📦 Installation
 

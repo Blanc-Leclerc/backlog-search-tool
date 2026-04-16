@@ -31,7 +31,7 @@
 
 ## 🌐 デモ (Demo)
 
-こちらからすぐにお試しいただけます: **https://backlog-search-tool.pages.dev**
+こちらからすぐにお試しいただけます: **https://backlogsearchtool.pages.dev**
 
 ## 📦 導入方法 (Install)
 
