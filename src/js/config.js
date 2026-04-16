@@ -98,6 +98,9 @@ const I18N = {
     msgSyncDone: '✨ データの更新が完了いたしましたわ！',
     msgCopied: 'コピーいたしました！',
     msgNoData: 'データがございませんわ。検索してから押してくださいませ。',
+    msgCommentPartFail: '⚠️ 一部のコメントが取得できませんでした。再同期をお試しくださいませ。',
+    msgCommentAllFail: '⚠️ コメントを取得できませんでした。',
+    msgCommentFailDesc: '再同期を行うことで解決する場合がございます。お手数ですがお試しくださいませ。',
     linkText: '🔗 何かのリンクですわ！',
     msgSearchHints: '<h3>💡 検索のコツ (Search Tips)</h3><ul style="list-style-type: none; padding-left: 10px; line-height: 1.6;"><li><b>📌 AND検索</b><br>キーワードをスペースで区切ると、すべての語句を含むチケットを検索します。<br>例：「エラー 画面」</li><li style="margin-top:10px;"><b>📌 ブラウザ内検索との合わせ技</b><br>このツールで大まかに絞り込んだ後、ブラウザの検索機能（Ctrl+F）を使うと、ハイライトされた箇所をさらに高速に探せますわ！</li><li style="margin-top:10px;"><b>📌 ダブルクリックでBacklogへ</b><br>検索結果の行をダブルクリックすると、Backlogの該当チケットページを直接開くことができますの。</li><li style="margin-top:10px;"><b>📌 リンクの活用</b><br>詳細画面のリンクは新しいタブで開きます。気になったらどんどん開いて確認しましょう。</li></ul>'
   },
@@ -179,6 +182,9 @@ const I18N = {
     msgSyncDone: '✨ Data synchronization is complete.',
     msgCopied: 'It has been copied.',
     msgNoData: 'There is no data, My Lady.',
+    msgCommentPartFail: '⚠️ Some comments could not be retrieved. Please try syncing again.',
+    msgCommentAllFail: '⚠️ Comments could not be retrieved.',
+    msgCommentFailDesc: 'This may be resolved by performing a re-sync. Please give it a try.',
     linkText: '🔗 Link',
     msgSearchHints: '<h3>💡 Search Tips</h3><ul style="list-style-type: none; padding-left: 10px; line-height: 1.6;"><li><b>📌 AND Search</b><br>Separate keywords with spaces to find issues containing all terms.<br>e.g. "error screen"</li><li style="margin-top:10px;"><b>📌 Combine with Browser Search</b><br>After filtering with this tool, use your browser\'s find function (Ctrl+F) to quickly locate highlighted terms!</li><li style="margin-top:10px;"><b>📌 Double-Click to Backlog</b><br>You can double-click a row in the search results to open the corresponding ticket page on Backlog directly.</li><li style="margin-top:10px;"><b>📌 Use Links</b><br>Links in the detail view open in new tabs. Feel free to open them to check details.</li></ul>'
   }
